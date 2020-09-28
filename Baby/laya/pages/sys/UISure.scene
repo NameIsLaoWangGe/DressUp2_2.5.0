@@ -1,12 +1,12 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":2,
-    "selecteID":13,
+    "selectedBox":3,
+    "selecteID":18,
     "searchKey":"View",
     "props":{"width":720,"top":0,"sceneColor":"#000000","right":0,"left":0,"height":1280,"bottom":0},
     "nodeParent":-1,
-    "maxID":14,
+    "maxID":19,
     "label":"View",
     "isOpen":true,
     "isDirectory":true,
@@ -18,7 +18,7 @@
             "x":15,
             "type":"Image",
             "searchKey":"Image,E2",
-            "props":{"var":"E2","top":0,"skin":"Frame/Effects/fangxingguang1.png","sizeGrid":"202,190,167,179","right":0,"left":0,"bottom":0},
+            "props":{"var":"E2","top":-2,"skin":"Frame/Effects/fangxingguang1.png","sizeGrid":"202,190,167,179","right":-2,"left":-2,"bottom":-2},
             "nodeParent":2,
             "label":"E2",
             "isDirectory":false,
@@ -59,6 +59,21 @@
                     "x":30,
                     "type":"Image",
                     "searchKey":"Image",
+                    "props":{"y":489,"x":57,"width":606,"height":266},
+                    "nodeParent":3,
+                    "label":"Image",
+                    "isOpen":true,
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":15,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Image",
+                    "searchKey":"Image",
                     "props":{"y":489,"x":57,"skin":"DX/QueRen/di.png"},
                     "nodeParent":3,
                     "label":"Image",
@@ -67,6 +82,36 @@
                     "isAniNode":true,
                     "hasChild":false,
                     "compId":4,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Image",
+                    "searchKey":"Image,E3,E3",
+                    "props":{"y":489,"x":57,"width":606,"var":"E3","skin":"DX/QueRen/di.png","name":"E3","height":266},
+                    "nodeParent":3,
+                    "label":"E3",
+                    "isOpen":true,
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":14,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Image",
+                    "searchKey":"Image,E4,E4",
+                    "props":{"y":489,"x":57,"width":606,"var":"E4","skin":"DX/QueRen/di.png","name":"E4","height":266},
+                    "nodeParent":3,
+                    "label":"E4",
+                    "isOpen":true,
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":17,
                     "child":[
                         ]
                 },
@@ -88,7 +133,7 @@
                     "x":30,
                     "type":"Image",
                     "searchKey":"Image,OkBtn,OkBtn",
-                    "props":{"y":641,"x":253,"var":"OkBtn","skin":"main/queding.png","name":"OkBtn"},
+                    "props":{"y":641,"x":253,"var":"OkBtn","skin":"main/queding.png","rotation":0,"name":"OkBtn"},
                     "nodeParent":3,
                     "label":"OkBtn",
                     "isOpen":false,
@@ -136,6 +181,21 @@
                     "isAniNode":true,
                     "hasChild":false,
                     "compId":9,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Image",
+                    "searchKey":"Image,E5",
+                    "props":{"y":489,"x":57,"width":606,"var":"E5","skin":"DX/QueRen/di.png","height":266},
+                    "nodeParent":3,
+                    "label":"E5",
+                    "isOpen":true,
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":18,
                     "child":[
                         ]
                 }],

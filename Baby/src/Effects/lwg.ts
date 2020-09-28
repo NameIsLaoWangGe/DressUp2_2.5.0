@@ -57,19 +57,20 @@ export module lwg {
          * @param args 
          * @param coverBefore 
          */
-        export function _frameNumLoop(delay: number, num: number, caller, method: Function, immediately?: boolean, args?: any[], coverBefore?: boolean): void {
+        export function _frameNumLoop(delay: number, num: number, caller: any, method: Function, immediately?: boolean, args?: any[], coverBefore?: boolean): void {
             if (immediately) {
                 method();
             }
             let num0 = 0;
-            Laya.timer.frameLoop(delay, caller, () => {
+            var func = () => {
                 num0++;
                 if (num0 > num) {
-                    Laya.timer.clearAll(caller);
+                    Laya.timer.clear(caller, func);
                 } else {
                     method();
                 }
-            }, args, coverBefore);
+            }
+            Laya.timer.frameLoop(delay, caller, func, args, coverBefore);
         }
 
         /**
@@ -145,14 +146,15 @@ export module lwg {
                 method();
             }
             let num0 = 0;
-            Laya.timer.loop(delay, caller, () => {
+            var func = () => {
                 num0++;
-                if (num0 >= num) {
-                    Laya.timer.clearAll(caller);
+                if (num0 > num) {
+                    Laya.timer.clear(caller, func);
                 } else {
                     method();
                 }
-            }, args, coverBefore);
+            }
+            Laya.timer.loop(delay, caller, func, args, coverBefore);
         }
 
         /**
@@ -431,9 +433,8 @@ export module lwg {
                  * 图片初始值设置
                  * Creates an instance of ImgBase.
                  * @param parent 父节点
-                 * @param caller 执行域
                  * @param centerPoint 中心点
-                 * @param sectionWH 以中心点为中心的宽高[w,h]
+                 * @param sectionWH 以中心点为中心的矩形生成范围[w,h]
                  * @param distance 移动距离，区间[a,b]，随机移动一定的距离后消失;
                  * @param width 粒子的宽度区间[a,b]
                  * @param height 粒子的高度区间[a,b],如果为空，这高度和宽度一样
@@ -469,10 +470,10 @@ export module lwg {
             }
 
             /**
-             *
+             * 雪花
              * @param {Laya.Sprite} parent 父节点
              * @param {Laya.Point} [centerPoint] 父节点内坐标
-             * @param {Array<number>} [sectionWH] 坐标区间宽高[a,b]
+             * @param sectionWH 以中心点为中心的矩形生成范围[w,h]
              * @param {Array<number>} [width] 宽区间[a,b]
              * @param {Array<number>} [height] 高区间[a,b]
              * @param {Array<number>} [rotation] 角度区间[a,b]
@@ -533,7 +534,7 @@ export module lwg {
               * @param parent 父节点
               * @param caller 执行域
               * @param centerPoint 中心点
-              * @param sectionWH 以中心点为中心的宽高[w,h]
+              * @param sectionWH 以中心点为中心的矩形生成范围[w,h]
               * @param width 粒子的宽度区间[a,b]
               * @param height 粒子的高度区间[a,b],如果为空，这高度和宽度一样
               * @param rotation 角度旋转[a,b]
@@ -592,7 +593,7 @@ export module lwg {
              * @param parent 父节点
              * @param caller 执行域
              * @param centerPoint 中心点
-             * @param radius 半径区间[a,b]
+             * @param sectionWH 以中心点为中心的矩形生成范围[w,h]
              * @param rotation 角度区间，默认为360
              * @param width 粒子的宽度区间[a,b]
              * @param height 粒子的高度区间[a,b],如果为空，这高度和宽度一样
@@ -649,21 +650,21 @@ export module lwg {
             /**
                * 单个，四周，喷射，旋转爆炸
                * @param parent 父节点
-               * @param caller 执行域
                * @param centerPoint 中心点
+               * @param sectionWH 以中心点为中心的矩形生成范围[w,h]
                * @param width 粒子的宽度区间[a,b]
                * @param height 粒子的高度区间[a,b],如果为空，这高度和宽度一样
                * @param rotation 旋转角度
-               * @param angle 角度区间，默认为360
+               * @param moveAngle 角度区间，默认为360
                * @param urlArr 图片地址集合，默认为框架中随机的样式
                * @param colorRGBA 上色色值区间[[R,G,B,A],[R,G,B,A]]
                * @param distance 移动距离区间[a,b]
                * @param rotationSpeed 旋转速度
                * @param speed  速度区间[a,b]
-               * @param accelerated 加速度区间[a,b]
+               * @param accelerated 加速度区间[a,b] 
                * @param zOder 层级，默认为0
                */
-            export function _spray(parent: Laya.Sprite, centerPoint?: Laya.Point, width?: Array<number>, height?: Array<number>, rotation?: Array<number>, angle?: Array<number>, urlArr?: Array<string>, colorRGBA?: Array<Array<number>>, zOder?: number, distance?: Array<number>, rotationSpeed?: Array<null>, speed?: Array<number>, accelerated?: Array<number>): Laya.Image {
+            export function _spray(parent: Laya.Sprite, centerPoint?: Laya.Point, sectionWH?: [number, number], width?: [number, number], height?: [number, number], rotation?: [number, number], urlArr?: [], colorRGBA?: [[number, number, number, number], [number, number, number, number]], zOder?: number, moveAngle?: [number, number], distance?: [number, number], rotationSpeed?: [number, number], speed?: [number, number], accelerated?: [number, number]): Laya.Image {
                 let Img = new _ParticleImgBase(parent, centerPoint, [0, 0], width, height, rotation, urlArr, colorRGBA, zOder);
                 let centerPoint0 = centerPoint ? centerPoint : new Laya.Point(0, 0);
                 let speed0 = speed ? Tools.randomOneNumber(speed[0], speed[1]) : Tools.randomOneNumber(3, 10);
@@ -677,7 +678,7 @@ export module lwg {
                 Img['moveCaller'] = moveCaller;
                 let radius = 0;
                 let distance1 = distance ? Tools.randomOneNumber(distance[0], distance[1]) : Tools.randomOneNumber(100, 200);
-                let angle0 = angle ? Tools.randomOneNumber(angle[0], angle[1]) : Tools.randomOneNumber(0, 360);
+                let angle0 = moveAngle ? Tools.randomOneNumber(moveAngle[0], moveAngle[1]) : Tools.randomOneNumber(0, 360);
                 let rotationSpeed0 = rotationSpeed ? Tools.randomOneNumber(rotationSpeed[0], rotationSpeed[1]) : Tools.randomOneNumber(0, 20);
                 TimerAdmin._frameLoop(1, moveCaller, () => {
                     Img.rotation += rotationSpeed0;
@@ -711,7 +712,92 @@ export module lwg {
             }
 
             /**
-             * 单个，移动到目标位置，再次移动一点，然后消失
+               * 从一个盒子的周围发射不同方向的粒子
+               * @param parent 父节点
+               * @param centerPoint 中心点
+               * @param sectionWH 以中心点为中心的矩形生成范围[w,h]
+               * @param width 粒子的位置宽度范围区间[a,b]
+               * @param height 粒子的高度区间[a,b],如果为空，这高度和宽度一样
+               * @param rotation 角度区间[a,b]，默认为360
+               * @param urlArr 图片地址集合，默认为框架中的样式
+               * @param colorRGBA 上色色值区间[[R,G,B,A],[R,G,B,A]]
+               * @param zOder 层级，默认为0
+               * @param curtailAngle 角度缩减0~90，填写90则是垂直于每个边
+               * @param distance 移动距离区间[a,b]
+               * @param rotateSpeed 旋转速度
+               * @param speed  速度区间[a,b]
+               * @param accelerated 加速度区间[a,b]
+               */
+            export function _outsideBox(parent: Laya.Sprite, centerPoint?: Laya.Point, sectionWH?: [number, number], width?: [number, number], height?: [number, number], rotation?: [number, number], urlArr?: Array<string>, colorRGBA?: [[number, number, number, number], [number, number, number, number]], zOder?: number, curtailAngle?: number, distance?: [number, number], rotateSpeed?: [number, number], speed?: [number, number], accelerated?: [number, number]): Laya.Image {
+                let Img = new _ParticleImgBase(parent, centerPoint, [0, 0], width, height, rotation, urlArr, colorRGBA, zOder);
+                let _angle: number = 0;
+                sectionWH = sectionWH ? sectionWH : [100, 100];
+                let fixedXY = Tools.randomOneHalf() == 0 ? 'x' : 'y';
+                curtailAngle = curtailAngle ? curtailAngle : 60;
+                if (fixedXY == 'x') {
+                    if (Tools.randomOneHalf() == 0) {
+                        Img.x += sectionWH[0];
+                        _angle = Tools.randomOneHalf() == 0 ? Tools.randomOneNumber(0 + curtailAngle, 90 - curtailAngle) : Tools.randomOneNumber(270 + curtailAngle, 360 - curtailAngle);
+
+                    } else {
+                        Img.x -= sectionWH[0];
+                        _angle = Tools.randomOneNumber(90 + curtailAngle, 270 - curtailAngle);
+                    }
+                    Img.y += Tools.randomOneNumber(-sectionWH[1], sectionWH[1]);
+                } else {
+                    if (Tools.randomOneHalf() == 0) {
+                        Img.y -= sectionWH[1];
+                        _angle = Tools.randomOneNumber(180 + curtailAngle, 360 - curtailAngle);
+                    } else {
+                        Img.y += sectionWH[1];
+                        _angle = Tools.randomOneNumber(0 + curtailAngle, 180 - curtailAngle);
+                    }
+                    Img.x += Tools.randomOneNumber(-sectionWH[0], sectionWH[0]);
+                }
+                let p = Tools.d2_angle_Vector(_angle);
+                let _distance = distance ? Tools.randomOneNumber(distance[0], distance[1]) : Tools.randomOneNumber(20, 50);
+                let speed0 = speed ? Tools.randomOneNumber(speed[0], speed[1]) : Tools.randomOneNumber(0.5, 1);
+                let accelerated0 = accelerated ? Tools.randomOneNumber(accelerated[0], accelerated[1]) : Tools.randomOneNumber(0.25, 0.45);
+                let acc = 0;
+                let rotationSpeed0 = rotateSpeed ? Tools.randomOneNumber(rotateSpeed[0], rotateSpeed[1]) : Tools.randomOneNumber(0, 20);
+                let firstP = new Laya.Point(Img.x, Img.y);
+                let moveCaller = {
+                    alpha: true,
+                    move: false,
+                    vinish: false,
+                };
+                Img['moveCaller'] = moveCaller;
+                TimerAdmin._frameLoop(1, moveCaller, () => {
+                    Img.rotation += rotationSpeed0;
+                    if (moveCaller.alpha) {
+                        Img.alpha += 0.5;
+                        if (Img.alpha >= 1) {
+                            moveCaller.alpha = false;
+                            moveCaller.move = true;
+                        }
+                    } else if (moveCaller.move) {
+                        if (firstP.distance(Img.x, Img.y) >= _distance) {
+                            moveCaller.move = false;
+                            moveCaller.vinish = true;
+                        }
+                    } else if (moveCaller.vinish) {
+                        Img.alpha -= 0.05;
+                        if (Img.alpha <= 0.3) {
+                            Img.removeSelf();
+                            Laya.timer.clearAll(moveCaller);
+                        }
+                    }
+                    if (!moveCaller.alpha) {
+                        acc += accelerated0;
+                        Img.x += p.x * (speed0 + acc);
+                        Img.y += p.y * (speed0 + acc);
+                    }
+                })
+                return Img;
+            }
+
+            /**
+             * 单个，移动到目标位置，停止，然后再次移动一点，然后消失
              * @param parent 父节点
              * @param caller 执行域
              * @param centerPoint 中心点
@@ -979,7 +1065,7 @@ export module lwg {
 
         /**循环模块*/
         export module _circulation {
-            /**循环模块基类*/
+            /**循环模块图片基类*/
             export class _circulationImage extends Laya.Image {
                 constructor(parent: Laya.Sprite, urlArr: Array<string>, colorRGBA: Array<Array<number>>, width: Array<number>, height: Array<number>, zOder: number) {
                     super();
@@ -2229,13 +2315,12 @@ export module lwg {
         };
 
         /**
-         * 在Laya2维世界中
+         * 在Laya2维世界中,属性检查器中的角度
          * 通过一个角度，返回一个单位向量
          * @param x 坐标x
          * @param y 坐标y
          * */
         export function d2_angle_Vector(angle): Laya.Point {
-            angle -= 90;
             let radian = (90 - angle) / (180 / Math.PI);
             let p = new Laya.Point(Math.sin(radian), Math.cos(radian));
             p.normalize();

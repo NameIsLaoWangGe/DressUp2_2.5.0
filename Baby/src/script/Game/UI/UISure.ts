@@ -1,4 +1,4 @@
-import { Animation2D, Color, TimerAdmin } from "../../../Effects/lwg";
+import { Animation2D, Color, Effects, TimerAdmin } from "../../../Effects/lwg";
 import { OpenType, UIBase, UIMgr } from "../../Frame/Core";
 import GameDataController from "../GameDataController";
 import { ManData } from "../ManConfigData";
@@ -23,28 +23,42 @@ export default class UISure extends UIBase {
             this.hide();
         })
     }
-    onShow():void{
+    onShow(): void {
         this.effects();
     };
 
     effects(): void {
-        let num = 0;
-        var func = () => {
-            num++;
-            Animation2D.fadeOut(this.vars('E2'), 0, 1, 100, 0, () => {
-                Animation2D.fadeOut(this.vars('E2'), 1, 0, 100, 0, () => {
-                    if (num > 2) {
-                        return;
-                    } else {
-                        func();
-                    }
+        Animation2D.fadeOut(this.vars('E2'), 0, 1, 150, 0, () => {
+            Animation2D.fadeOut(this.vars('E2'), 1, 0, 100, 0, () => {
+                Animation2D.fadeOut(this.vars('E2'), 0, 1, 150, 0, () => {
+                    Animation2D.fadeOut(this.vars('E2'), 1, 0, 100, 0, () => {
+                    })
                 })
             })
-        }
-        func();
+        })
+
+        TimerAdmin._loop(2100, this, () => {
+            Animation2D.fadeOut(this.vars('E3'), 1, 0, 1000, 0, () => {
+                Animation2D.fadeOut(this.vars('E3'), 0, 1, 1000, 0, () => {
+                })
+            })
+        }, true)
+
         TimerAdmin._frameNumLoop(5, 7, this, () => {
             Color._changeConstant(this.vars('E2'), [100, 100, 100], [255, 255, 255], 2);
         })
+
+        let E4 = this.vars('E4') as Laya.Image;
+        TimerAdmin._frameRandomLoop(5, 30, this, () => {
+            Effects._Particle._outsideBox(E4, new Laya.Point(E4.width / 2, E4.height / 2), [E4.width / 2, E4.height / 2], null, null, null, [Effects._SkinUrl.爱心3], [[80, 80, 80, 1], [255, 255, 255, 1]])
+        })
+
+        Effects._circulation._corner(this.vars('E4'), [[0, 0], [660, 0], [0, 0], [0, 0],])
+
+
+    }
+    onDisable(): void {
+        Laya.timer.clearAll(this);
     }
 
     OkBtnClick() {
