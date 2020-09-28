@@ -11686,7 +11686,7 @@
                     if (fixedXY == 'x') {
                         if (Tools.randomOneHalf() == 0) {
                             Img.x += sectionWH[0];
-                            _angle = Tools.randomOneHalf() == 0 ? Tools.randomOneNumber(0 + curtailAngle, 90 - curtailAngle) : Tools.randomOneNumber(270 + curtailAngle, 360 - curtailAngle);
+                            _angle = Tools.randomOneHalf() == 0 ? Tools.randomOneNumber(0, 90 - curtailAngle) : Tools.randomOneNumber(0, -90 + curtailAngle);
                         }
                         else {
                             Img.x -= sectionWH[0];
@@ -11988,24 +11988,57 @@
                     }
                 }
                 _circulation._circulationImage = _circulationImage;
-                function _corner(parent, posArray, urlArr, colorRGBA, width, height, zOder, speed) {
+                function _corner(parent, posArray, urlArr, colorRGBA, width, height, zOder, parallel, speed) {
                     if (posArray.length <= 1) {
                         return;
                     }
                     let Img = new _circulationImage(parent, urlArr, colorRGBA, width, height, zOder);
+                    let Imgfootprint = new _circulationImage(parent, urlArr, colorRGBA, width, height, zOder);
+                    Imgfootprint.filters = Img.filters;
                     Img.pos(posArray[0][0], posArray[0][1]);
                     Img.alpha = 1;
                     let moveCaller = {
                         num: 0,
+                        alpha: true,
+                        move: false,
                     };
                     Img['moveCaller'] = moveCaller;
-                    let _speed = speed ? speed : 10;
+                    let _speed = speed ? speed : 3;
                     let index = 0;
                     Img.scale(1, 1);
+                    TimerAdmin._frameLoop(1, moveCaller, () => {
+                        let Imgfootprint = new _circulationImage(parent, urlArr, colorRGBA, width, height, zOder);
+                        Imgfootprint.filters = Img.filters;
+                        Imgfootprint.x = Img.x;
+                        Imgfootprint.y = Img.y;
+                        Imgfootprint.rotation = Img.rotation;
+                        Imgfootprint.alpha = 1;
+                        Imgfootprint.zOrder = -1;
+                        Imgfootprint.scaleX = Img.scaleX;
+                        Imgfootprint.scaleY = Img.scaleY;
+                        Animation2D.fadeOut(Imgfootprint, 1, 0, 200, 0, () => {
+                            Imgfootprint.removeSelf();
+                        });
+                        if (Img.parent == null) {
+                            Laya.timer.clearAll(moveCaller);
+                        }
+                        moveCaller.num++;
+                        if (urlArr) {
+                            if (moveCaller.num > urlArr.length) {
+                                moveCaller.num = 0;
+                            }
+                            else {
+                                Img.skin = urlArr[moveCaller.num];
+                            }
+                        }
+                    });
                     var func = () => {
                         let targetXY = [posArray[index][0], posArray[index][1]];
-                        let distance = (new Laya.Point()).distance(targetXY[0], targetXY[1]);
-                        let time = distance / _speed * 100;
+                        let distance = (new Laya.Point(Img.x, Img.y)).distance(targetXY[0], targetXY[1]);
+                        if (parallel) {
+                            Img.rotation = Tools.d2_Vector_Angle(Img.x - targetXY[0], Img.y - targetXY[1]) + 180;
+                        }
+                        let time = speed * 100 + distance / 5;
                         if (index == posArray.length + 1) {
                             targetXY = [posArray[0][0], posArray[0][1]];
                         }
@@ -12018,6 +12051,7 @@
                         });
                     };
                     func();
+                    return Img;
                 }
                 _circulation._corner = _corner;
             })(_circulation = Effects._circulation || (Effects._circulation = {}));
@@ -13279,9 +13313,9 @@
                     });
                 });
             });
-            TimerAdmin._loop(2100, this, () => {
-                Animation2D.fadeOut(this.vars('E3'), 1, 0, 1000, 0, () => {
-                    Animation2D.fadeOut(this.vars('E3'), 0, 1, 1000, 0, () => {
+            TimerAdmin._loop(1100, this, () => {
+                Animation2D.fadeOut(this.vars('E3'), 1, 0, 500, 0, () => {
+                    Animation2D.fadeOut(this.vars('E3'), 0, 1, 500, 0, () => {
                     });
                 });
             }, true);
@@ -13290,11 +13324,18 @@
             });
             let E4 = this.vars('E4');
             TimerAdmin._frameRandomLoop(5, 30, this, () => {
-                Effects._Particle._outsideBox(E4, new Laya.Point(E4.width / 2, E4.height / 2), [E4.width / 2, E4.height / 2], null, null, null, [Effects._SkinUrl.爱心3], [[80, 80, 80, 1], [255, 255, 255, 1]]);
+                Effects._Particle._outsideBox(E4, new Laya.Point(E4.width / 2, E4.height / 2), [E4.width / 2, E4.height / 2], null, null, null, [Effects._SkinUrl.爱心3], [[80, 80, 80, 1], [255, 255, 255, 1]], 0, 90);
+            });
+            let E5 = this.vars('E5');
+            let numE5 = 0;
+            Effects._circulation._corner(E5, [[0, 0], [606, 0], [606, 266], [0, 266]], [Effects._SkinUrl.圆形发光1], null, [60 - numE5 * 5, 60 - numE5 * 5], null, null, true);
+            TimerAdmin._frameOnce(50, this, () => {
+                Effects._circulation._corner(E5, [[0, 0], [606, 0], [606, 266], [0, 266]], [Effects._SkinUrl.圆形发光1], null, [60 - numE5 * 5, 60 - numE5 * 5], null, null, true);
             });
         }
         onDisable() {
             Laya.timer.clearAll(this);
+            Tools.node_RemoveAllChildren(this.vars('E5'));
         }
         OkBtnClick() {
             this.paintingID = GameDataController.paint;

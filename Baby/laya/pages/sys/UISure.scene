@@ -188,7 +188,7 @@
                     "x":30,
                     "type":"Image",
                     "searchKey":"Image,E5",
-                    "props":{"y":489,"x":57,"width":606,"var":"E5","skin":"DX/QueRen/di.png","height":266},
+                    "props":{"y":489,"x":57,"width":606,"var":"E5","height":266},
                     "nodeParent":3,
                     "label":"E5",
                     "isOpen":true,

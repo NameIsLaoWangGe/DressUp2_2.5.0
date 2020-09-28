@@ -1,4 +1,4 @@
-import { Animation2D, Color, Effects, TimerAdmin } from "../../../Effects/lwg";
+import { Animation2D, Color, Effects, TimerAdmin, Tools } from "../../../Effects/lwg";
 import { OpenType, UIBase, UIMgr } from "../../Frame/Core";
 import GameDataController from "../GameDataController";
 import { ManData } from "../ManConfigData";
@@ -37,9 +37,9 @@ export default class UISure extends UIBase {
             })
         })
 
-        TimerAdmin._loop(2100, this, () => {
-            Animation2D.fadeOut(this.vars('E3'), 1, 0, 1000, 0, () => {
-                Animation2D.fadeOut(this.vars('E3'), 0, 1, 1000, 0, () => {
+        TimerAdmin._loop(1100, this, () => {
+            Animation2D.fadeOut(this.vars('E3'), 1, 0, 500, 0, () => {
+                Animation2D.fadeOut(this.vars('E3'), 0, 1, 500, 0, () => {
                 })
             })
         }, true)
@@ -50,15 +50,23 @@ export default class UISure extends UIBase {
 
         let E4 = this.vars('E4') as Laya.Image;
         TimerAdmin._frameRandomLoop(5, 30, this, () => {
-            Effects._Particle._outsideBox(E4, new Laya.Point(E4.width / 2, E4.height / 2), [E4.width / 2, E4.height / 2], null, null, null, [Effects._SkinUrl.爱心3], [[80, 80, 80, 1], [255, 255, 255, 1]])
+            Effects._Particle._outsideBox(E4, new Laya.Point(E4.width / 2, E4.height / 2), [E4.width / 2, E4.height / 2], null, null, null, [Effects._SkinUrl.爱心3], [[80, 80, 80, 1], [255, 255, 255, 1]], 0, 90)
         })
 
-        Effects._circulation._corner(this.vars('E4'), [[0, 0], [660, 0], [0, 0], [0, 0],])
+        let E5 = this.vars('E5') as Laya.Image;
+        let numE5 = 0;
+
+        Effects._circulation._corner(E5, [[0, 0], [606, 0], [606, 266], [0, 266]], [Effects._SkinUrl.圆形发光1], null, [60 - numE5 * 5, 60 - numE5 * 5], null, null, true,);
+
+        TimerAdmin._frameOnce(50, this, () => {
+            Effects._circulation._corner(E5, [[0, 0], [606, 0], [606, 266], [0, 266]], [Effects._SkinUrl.圆形发光1], null, [60 - numE5 * 5, 60 - numE5 * 5], null, null, true,);
+        })
 
 
     }
     onDisable(): void {
         Laya.timer.clearAll(this);
+        Tools.node_RemoveAllChildren(this.vars('E5'));
     }
 
     OkBtnClick() {

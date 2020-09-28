@@ -737,7 +737,7 @@ export module lwg {
                 if (fixedXY == 'x') {
                     if (Tools.randomOneHalf() == 0) {
                         Img.x += sectionWH[0];
-                        _angle = Tools.randomOneHalf() == 0 ? Tools.randomOneNumber(0 + curtailAngle, 90 - curtailAngle) : Tools.randomOneNumber(270 + curtailAngle, 360 - curtailAngle);
+                        _angle = Tools.randomOneHalf() == 0 ? Tools.randomOneNumber(0, 90 - curtailAngle) : Tools.randomOneNumber(0, -90 + curtailAngle);
 
                     } else {
                         Img.x -= sectionWH[0];
@@ -1092,6 +1092,7 @@ export module lwg {
              * 多点循环，在一组点中，以第一个点为起点，最后一个点为终点无限循环
              * @param {Laya.Sprite} parent 父节点
              * @param {Array<Array<number>>} [posArray] 坐标点集合[[x,y]]
+             * @param parallel 粒子是平行于当前的移动路径
              * @param {Array<string>} [urlArr] 皮肤结合
              * @param {Array<Array<number>>} [colorRGBA] 颜色区间[[ ][ ]]               
              * @param {Array<number>} [width] 宽度区间[a,b]
@@ -1099,24 +1100,57 @@ export module lwg {
              * @param {number} [zOder] 层级
              * @param {number} [speed] 速度
              */
-            export function _corner(parent: Laya.Sprite, posArray: Array<Array<number>>, urlArr?: Array<string>, colorRGBA?: Array<Array<number>>, width?: Array<number>, height?: Array<number>, zOder?: number, speed?: number): void {
+            export function _corner(parent: Laya.Sprite, posArray: Array<Array<number>>, urlArr?: Array<string>, colorRGBA?: Array<Array<number>>, width?: Array<number>, height?: Array<number>, zOder?: number, parallel?: boolean, speed?: number): Laya.Image {
                 if (posArray.length <= 1) {
                     return;
                 }
                 let Img = new _circulationImage(parent, urlArr, colorRGBA, width, height, zOder);
+                let Imgfootprint = new _circulationImage(parent, urlArr, colorRGBA, width, height, zOder);
+                Imgfootprint.filters = Img.filters;
                 Img.pos(posArray[0][0], posArray[0][1]);
                 Img.alpha = 1;
                 let moveCaller = {
                     num: 0,
+                    alpha: true,
+                    move: false,
                 };
                 Img['moveCaller'] = moveCaller;
-                let _speed = speed ? speed : 10;
+                let _speed = speed ? speed : 3;
                 let index = 0;
                 Img.scale(1, 1);
+
+                TimerAdmin._frameLoop(1, moveCaller, () => {
+                    let Imgfootprint = new _circulationImage(parent, urlArr, colorRGBA, width, height, zOder);
+                    Imgfootprint.filters = Img.filters;
+                    Imgfootprint.x = Img.x;
+                    Imgfootprint.y = Img.y;
+                    Imgfootprint.rotation = Img.rotation;
+                    Imgfootprint.alpha = 1;
+                    Imgfootprint.zOrder = -1;
+                    Imgfootprint.scaleX = Img.scaleX;
+                    Imgfootprint.scaleY = Img.scaleY;
+                    Animation2D.fadeOut(Imgfootprint, 1, 0, 200, 0, () => {
+                        Imgfootprint.removeSelf();
+                    });
+                    if (Img.parent == null) {
+                        Laya.timer.clearAll(moveCaller);
+                    }
+                    moveCaller.num++;
+                    if (urlArr) {
+                        if (moveCaller.num > urlArr.length) {
+                            moveCaller.num = 0;
+                        } else {
+                            Img.skin = urlArr[moveCaller.num];
+                        }
+                    }
+                })
                 var func = () => {
                     let targetXY = [posArray[index][0], posArray[index][1]];
-                    let distance = (new Laya.Point()).distance(targetXY[0], targetXY[1]);
-                    let time = distance / _speed * 100;
+                    let distance = (new Laya.Point(Img.x, Img.y)).distance(targetXY[0], targetXY[1]);
+                    if (parallel) {
+                        Img.rotation = Tools.d2_Vector_Angle(Img.x - targetXY[0], Img.y - targetXY[1]) + 180;
+                    }
+                    let time = speed * 100 + distance / 5;
                     if (index == posArray.length + 1) {
                         targetXY = [posArray[0][0], posArray[0][1]];
                     }
@@ -1129,6 +1163,7 @@ export module lwg {
                     });
                 }
                 func();
+                return Img;
             }
         }
     }
